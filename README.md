@@ -54,19 +54,12 @@ mvn quarkus:add-extension -Dextensions="smallrye-metrics"
 mvn quarkus:add-extension -Dextensions="smallrye-health"
 
 mvn quarkus:add-extension -Dextensions="hibernate-orm-panache,jdbc-h2,jdbc-postgresql,resteasy-jsonb"
-
-mvn compile quarkus:dev
 ```
 
 ## Build & deploy uber jar 
 
 ```
 mvn clean package -DskipTests -Dquarkus.package.type=uber-jar
-```
-
-## Build
-```
-oc start-build people --from-file target/*-runner.jar --follow
 ```
 
 
@@ -82,9 +75,6 @@ ls -1 target/*.jar
 
 ```
 java -Dquarkus.http.port=8081 -jar target/*-runner.jar
-
-LAB_PROJECT_NAME=$(oc projects| grep "quarkus-experienced-lab" | head -n 1 | awk '{print $2}')
-echo $LAB_PROJECT_NAME 
 ```
 
 ## Log into OpenShift 
@@ -93,14 +83,6 @@ echo $LAB_PROJECT_NAME
 OPENSHIFT_API_URL=https://api.openshift.example.com:6443/
 oc login $OPENSHIFT_API_URL --insecure-skip-tls-verify=true
 oc whoami
-```
-
-## Configure Kube probes 
-
-```
-oc set probe deployment/people --readiness --initial-delay-seconds=30 --get-url=http://:8080/health/ready
-oc set probe deployment/people --liveness --initial-delay-seconds=30 --get-url=http://:8080/health/live
-oc rollout status -w deployment/people
 ```
 
 ## "Binary" Build on OpenShift 
@@ -153,7 +135,15 @@ curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2000 | jq
 curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2020 | jq
 ```
 
-## Test in browser 
+## Configure Kube probes 
+
+```
+oc set probe deployment/people --readiness --initial-delay-seconds=30 --get-url=http://:8080/health/ready
+oc set probe deployment/people --liveness --initial-delay-seconds=30 --get-url=http://:8080/health/live
+oc rollout status -w deployment/people
+```
+
+## Test this URL in browser 
 
 ```
 echo "http://${PEOPLE_ROUTE_URL}/datatable.html" ; echo
