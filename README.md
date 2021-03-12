@@ -68,6 +68,7 @@ mvn clean package -DskipTests -Dquarkus.package.type=uber-jar
 
 ```
 mvn clean package
+
 ls -1 target/*.jar
 ```
 
@@ -85,7 +86,9 @@ java -Dquarkus.http.port=8081 -jar target/*-runner.jar
 
 ```
 OPENSHIFT_API_URL=https://api.openshift.example.com:6443/
+
 oc login $OPENSHIFT_API_URL --insecure-skip-tls-verify=true
+
 oc whoami
 ```
 
@@ -94,6 +97,7 @@ oc whoami
 ```
 # These commands will upload the runner jar into a openjdk-11 container and commit it to the built-in registry
 oc new-build registry.access.redhat.com/openjdk/openjdk-11-rhel7:1.1 --binary --name=people -l app=people
+
 oc start-build people --from-file target/*-runner.jar --follow
 ```
 
@@ -108,7 +112,8 @@ curl http://${PEOPLE_ROUTE_URL}/hello
 ## Deploy with dababase 
 
 ```
-oc new-app     -e POSTGRESQL_USER=sa     -e POSTGRESQL_PASSWORD=sa     -e POSTGRESQL_DATABASE=person     --name=postgres-database     openshift/postgresql
+oc new-app -e POSTGRESQL_USER=sa -e POSTGRESQL_PASSWORD=sa -e POSTGRESQL_DATABASE=person --name=postgres-database openshift/postgresql
+
 oc rollout status -w deployment/people
 ```
 
@@ -128,6 +133,7 @@ oc rollout status -w deployment/people
 
 ```
 PEOPLE_ROUTE_URL=$(oc get route people -o=template --template='{{.spec.host}}')
+
 curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2000
 
 curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2000; echo 
@@ -135,6 +141,7 @@ curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2000; echo
 curl "http://${PEOPLE_ROUTE_URL}/person/datatable?draw=1&start=0&length=2&search\[value\]=F" | jq
 
 curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2000 | jq
+
 curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2020 | jq
 ```
 
@@ -142,7 +149,9 @@ curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2020 | jq
 
 ```
 oc set probe deployment/people --readiness --initial-delay-seconds=30 --get-url=http://:8080/health/ready
+
 oc set probe deployment/people --liveness --initial-delay-seconds=30 --get-url=http://:8080/health/live
+
 oc rollout status -w deployment/people
 ```
 
