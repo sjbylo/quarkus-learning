@@ -2,6 +2,8 @@
 
 This repository contains some of the code from the _Cloud Native Development with Quarkus - Experienced_ lab exercises.
 
+Use this repo to learn Quarkus and some Java. 
+
 ## Build on local machine 
 
 ```
@@ -62,8 +64,6 @@ mvn quarkus:add-extension -Dextensions="hibernate-orm-panache,jdbc-h2,jdbc-postg
 mvn clean package -DskipTests -Dquarkus.package.type=uber-jar
 ```
 
-
----------
 ## Build jar 
 
 ```
@@ -77,6 +77,10 @@ ls -1 target/*.jar
 java -Dquarkus.http.port=8081 -jar target/*-runner.jar
 ```
 
+---------
+
+# Build & run on OpenShift 
+
 ## Log into OpenShift 
 
 ```
@@ -88,6 +92,7 @@ oc whoami
 ## "Binary" Build on OpenShift 
 
 ```
+# These commands will upload the runner jar into a openjdk-11 container and commit it to the built-in registry
 oc new-build registry.access.redhat.com/openjdk/openjdk-11-rhel7:1.1 --binary --name=people -l app=people
 oc start-build people --from-file target/*-runner.jar --follow
 ```
@@ -124,8 +129,6 @@ oc rollout status -w deployment/people
 ```
 PEOPLE_ROUTE_URL=$(oc get route people -o=template --template='{{.spec.host}}')
 curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2000
-
-oc get route people -o=template --template='{{.spec.host}}'; echo 
 
 curl http://${PEOPLE_ROUTE_URL}/person/birth/before/2000; echo 
 
